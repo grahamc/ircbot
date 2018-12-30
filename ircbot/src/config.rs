@@ -10,7 +10,7 @@ pub struct Config {
     nickname: String,
     alternate_nicknames: Vec<String>,
     password: String,
-    channels: Vec<String>,
+    pub channels: Vec<String>,
     pub rabbitmq: RabbitMQConfig,
 }
 
@@ -39,6 +39,7 @@ impl Config {
         IrcConfig {
             nickname: Some(self.nickname.clone()),
             nick_password: Some(self.password.clone()),
+            password: Some(format!("gchristensen:{}", self.password.clone())),
             server: Some("chat.freenode.net".to_owned()),
             port: Some(6697),
             use_ssl: Some(true),
@@ -69,7 +70,6 @@ impl Config {
 
             options: None,
             owners: None,
-            password: Some("".to_owned()),
             umodes: None,
 
 

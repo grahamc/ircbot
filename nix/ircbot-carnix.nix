@@ -1315,7 +1315,7 @@ rec {
     toml_0_4_5.default = true;
   }) [ bufstream_0_1_3_features bytes_0_4_5_features chrono_0_4_0_features encoding_0_2_33_features error_chain_0_10_0_features futures_0_1_17_features native_tls_0_1_4_features serde_1_0_23_features serde_derive_1_0_23_features serde_json_1_0_7_features tokio_core_0_1_10_features tokio_io_0_1_4_features tokio_mockstream_1_1_0_features tokio_timer_0_1_2_features tokio_tls_0_1_3_features toml_0_4_5_features ];
   ircbot_0_1_0 = { features?(ircbot_0_1_0_features {}) }: ircbot_0_1_0_ {
-    dependencies = mapFeatures features ([ amqp_0_1_0 env_logger_0_4_3 irc_0_12_5 log_0_3_8 serde_1_0_23 serde_derive_1_0_23 serde_json_1_0_7 toml_0_4_5 ]);
+    dependencies = mapFeatures features ([ amqp_0_1_0 env_logger_0_4_3 irc_0_12_5 log_0_3_8 rand_0_3_18 serde_1_0_23 serde_derive_1_0_23 serde_json_1_0_7 toml_0_4_5 ]);
   };
   ircbot_0_1_0_features = f: updateFeatures f (rec {
     amqp_0_1_0.default = true;
@@ -1323,11 +1323,12 @@ rec {
     irc_0_12_5.default = true;
     ircbot_0_1_0.default = (f.ircbot_0_1_0.default or true);
     log_0_3_8.default = true;
+    rand_0_3_18.default = true;
     serde_1_0_23.default = true;
     serde_derive_1_0_23.default = true;
     serde_json_1_0_7.default = true;
     toml_0_4_5.default = true;
-  }) [ amqp_0_1_0_features env_logger_0_4_3_features irc_0_12_5_features log_0_3_8_features serde_1_0_23_features serde_derive_1_0_23_features serde_json_1_0_7_features toml_0_4_5_features ];
+  }) [ amqp_0_1_0_features env_logger_0_4_3_features irc_0_12_5_features log_0_3_8_features rand_0_3_18_features serde_1_0_23_features serde_derive_1_0_23_features serde_json_1_0_7_features toml_0_4_5_features ];
   itoa_0_3_4 = { features?(itoa_0_3_4_features {}) }: itoa_0_3_4_ {
     features = mkFeatures (features.itoa_0_3_4 or {});
   };

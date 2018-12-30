@@ -11,6 +11,7 @@ extern crate env_logger;
 extern crate log;
 use irc::client::server::Server;
 use irc::client::prelude::Command;
+use irc::proto::Command::Raw;
 use irc::client::prelude::ServerExt;
 use irc::client::prelude::IrcServer;
 
@@ -24,6 +25,7 @@ use amqp::Table;
 
 use ircbot::config;
 
+use std::time;
 use std::thread;
 use std::env;
 
@@ -88,6 +90,7 @@ fn main() {
     let server = IrcServer::from_config(cfg.irc_config()).unwrap();
     server.identify().unwrap();
     let reader = server.clone();
+    let reader_updater = server.clone();
 
     thread::spawn(move || {
         let consumer_name = readchan.basic_consume(
@@ -116,6 +119,52 @@ fn main() {
 
     reader.for_each_incoming(|message| {
         match message.command {
+            Raw(code, mut elems, extra) => {
+                if code == "470" {
+                    if let Some(_who) = elems.pop() {
+                        if let Some(channel) = elems.pop() {
+                            if let Some(target) = elems.pop() {
+                                if channel.starts_with("#") {
+                                    println!("Forwarded from {:?} to {:?}, retrying",
+                                             channel, target
+                                    );
+                                    thread::sleep(time::Duration::from_secs(5));
+                                    reader_updater.send_join(&channel).unwrap();
+                                } else {
+                                    println!("RAW: {:?}, {:?}, {:?}", code, elems, extra);
+                                }
+                            } else {
+                                println!("RAW: {:?}, {:?}, {:?}", code, elems, extra);
+                            }
+                        } else {
+                            println!("RAW: {:?}, {:?}, {:?}", code, elems, extra);
+                        }
+                    } else {
+                        println!("RAW: {:?}, {:?}, {:?}", code, elems, extra);
+                    }
+                } else {
+                    println!("RAW: {:?}, {:?}, {:?}", code, elems, extra);
+                }
+            }
+            Command::Response(ERR_NOCHANMODES, mut deets, mut msg) => {
+                if let Some(_who) = deets.pop() {
+                    if let Some(channel) = deets.pop() {
+                        if channel.starts_with("#") {
+                            println!("Failed to join {:?}, retrying: {:?} ",
+                                     channel, msg
+                            );
+                            thread::sleep(time::Duration::from_secs(5));
+                            reader_updater.send_join(&channel).unwrap();
+                        } else {
+                            println!("no chan modes: {:?}, {:?}", deets, msg);
+                        }
+                    } else {
+                        println!("no chan modes: {:?}, {:?}", deets, msg);
+                    }
+                } else {
+                    println!("no chan modes: {:?}, {:?}", deets, msg);
+                }
+            }
             Command::PRIVMSG(ref _target, ref msg) => {
                 let msg = serde_json::to_string(&MessageFromIRC{
                     from: message.response_target()
