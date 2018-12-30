@@ -12,3 +12,4 @@ result
 target
 *.nix.orig
 *.nix.rej
+config.*.json
